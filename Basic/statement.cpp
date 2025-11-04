@@ -30,7 +30,7 @@ void RemStatement::execute(EvalState &state, Program &program) {
 }
 
 // LetStatement implementation
-LetStatement::LetStatement(TokenScanner &scanner) {
+LetStatement::LetStatement(TokenScanner &scanner) : exp(nullptr) {
     varName = scanner.nextToken();
     if (scanner.getTokenType(varName) != WORD || isKeyword(varName)) {
         error("SYNTAX ERROR");
@@ -52,7 +52,7 @@ void LetStatement::execute(EvalState &state, Program &program) {
 }
 
 // PrintStatement implementation
-PrintStatement::PrintStatement(TokenScanner &scanner) {
+PrintStatement::PrintStatement(TokenScanner &scanner) : exp(nullptr) {
     exp = parseExp(scanner);
 }
 
@@ -136,10 +136,12 @@ int GotoStatement::getTargetLine() const {
 }
 
 // IfStatement implementation
-IfStatement::IfStatement(TokenScanner &scanner) {
+IfStatement::IfStatement(TokenScanner &scanner) : lhs(nullptr), rhs(nullptr) {
     lhs = readE(scanner, 0);
     op = scanner.nextToken();
     if (op != "=" && op != "<" && op != ">") {
+        delete lhs;
+        lhs = nullptr;
         error("SYNTAX ERROR");
     }
     rhs = readE(scanner, 0);
