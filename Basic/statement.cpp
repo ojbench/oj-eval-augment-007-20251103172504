@@ -89,8 +89,14 @@ void InputStatement::execute(EvalState &state, Program &program) {
         scanner.setInput(line);
         std::string token = scanner.nextToken();
         if (scanner.getTokenType(token) == NUMBER && !scanner.hasMoreTokens()) {
-            state.setValue(varName, stringToInteger(token));
-            break;
+            try {
+                int value = stringToInteger(token);
+                state.setValue(varName, value);
+                break;
+            } catch (...) {
+                std::cout << "INVALID NUMBER" << std::endl;
+                std::cout << " ? ";
+            }
         } else {
             std::cout << "INVALID NUMBER" << std::endl;
             std::cout << " ? ";
