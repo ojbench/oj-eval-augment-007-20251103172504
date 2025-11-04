@@ -75,7 +75,6 @@ void processLine(std::string line, Program &program, EvalState &state) {
         }
 
         // Store the source line
-        std::string restOfLine = line.substr(scanner.getPosition());
         program.addSourceLine(lineNumber, line);
 
         // Parse and store the statement
@@ -194,6 +193,9 @@ void processLine(std::string line, Program &program, EvalState &state) {
         if (scanner.hasMoreTokens()) {
             error("SYNTAX ERROR");
         }
+        // Clean up and exit
+        program.clear();
+        state.Clear();
         exit(0);
     }
 
