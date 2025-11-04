@@ -12,6 +12,8 @@
 
 /* Implementation of the Statement class */
 
+#include "Utils/keywords.hpp"
+
 int stringToInt(std::string str);
 
 Statement::Statement() = default;
@@ -30,7 +32,7 @@ void RemStatement::execute(EvalState &state, Program &program) {
 // LetStatement implementation
 LetStatement::LetStatement(TokenScanner &scanner) {
     varName = scanner.nextToken();
-    if (scanner.getTokenType(varName) != WORD) {
+    if (scanner.getTokenType(varName) != WORD || isKeyword(varName)) {
         error("SYNTAX ERROR");
     }
     std::string equals = scanner.nextToken();
@@ -66,7 +68,7 @@ void PrintStatement::execute(EvalState &state, Program &program) {
 // InputStatement implementation
 InputStatement::InputStatement(TokenScanner &scanner) {
     varName = scanner.nextToken();
-    if (scanner.getTokenType(varName) != WORD) {
+    if (scanner.getTokenType(varName) != WORD || isKeyword(varName)) {
         error("SYNTAX ERROR");
     }
     if (scanner.hasMoreTokens()) {
