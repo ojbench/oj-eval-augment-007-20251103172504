@@ -82,28 +82,36 @@ void processLine(std::string line, Program &program, EvalState &state) {
         std::string stmtType = scanner.nextToken();
         Statement *stmt = nullptr;
 
-        if (stmtType == "REM") {
-            stmt = new RemStatement();
-        } else if (stmtType == "LET") {
-            stmt = new LetStatement(scanner);
-        } else if (stmtType == "PRINT") {
-            stmt = new PrintStatement(scanner);
-        } else if (stmtType == "INPUT") {
-            stmt = new InputStatement(scanner);
-        } else if (stmtType == "END") {
-            if (scanner.hasMoreTokens()) {
+        try {
+            if (stmtType == "REM") {
+                stmt = new RemStatement();
+            } else if (stmtType == "LET") {
+                stmt = new LetStatement(scanner);
+            } else if (stmtType == "PRINT") {
+                stmt = new PrintStatement(scanner);
+            } else if (stmtType == "INPUT") {
+                stmt = new InputStatement(scanner);
+            } else if (stmtType == "END") {
+                if (scanner.hasMoreTokens()) {
+                    error("SYNTAX ERROR");
+                }
+                stmt = new EndStatement();
+            } else if (stmtType == "GOTO") {
+                stmt = new GotoStatement(scanner);
+            } else if (stmtType == "IF") {
+                stmt = new IfStatement(scanner);
+            } else {
                 error("SYNTAX ERROR");
             }
-            stmt = new EndStatement();
-        } else if (stmtType == "GOTO") {
-            stmt = new GotoStatement(scanner);
-        } else if (stmtType == "IF") {
-            stmt = new IfStatement(scanner);
-        } else {
-            error("SYNTAX ERROR");
-        }
 
-        program.setParsedStatement(lineNumber, stmt);
+            program.setParsedStatement(lineNumber, stmt);
+        } catch (...) {
+            if (stmt != nullptr) {
+                delete stmt;
+            }
+            program.removeSourceLine(lineNumber);
+            throw;
+        }
         return;
     }
 
@@ -198,24 +206,31 @@ void processLine(std::string line, Program &program, EvalState &state) {
     scanner.saveToken(token);
     Statement *stmt = nullptr;
 
-    if (token == "REM") {
-        stmt = new RemStatement();
-    } else if (token == "LET") {
-        scanner.nextToken(); // consume LET
-        stmt = new LetStatement(scanner);
-    } else if (token == "PRINT") {
-        scanner.nextToken(); // consume PRINT
-        stmt = new PrintStatement(scanner);
-    } else if (token == "INPUT") {
-        scanner.nextToken(); // consume INPUT
-        stmt = new InputStatement(scanner);
-    } else {
-        error("SYNTAX ERROR");
-    }
+    try {
+        if (token == "REM") {
+            stmt = new RemStatement();
+        } else if (token == "LET") {
+            scanner.nextToken(); // consume LET
+            stmt = new LetStatement(scanner);
+        } else if (token == "PRINT") {
+            scanner.nextToken(); // consume PRINT
+            stmt = new PrintStatement(scanner);
+        } else if (token == "INPUT") {
+            scanner.nextToken(); // consume INPUT
+            stmt = new InputStatement(scanner);
+        } else {
+            error("SYNTAX ERROR");
+        }
 
-    if (stmt != nullptr) {
-        stmt->execute(state, program);
-        delete stmt;
+        if (stmt != nullptr) {
+            stmt->execute(state, program);
+            delete stmt;
+        }
+    } catch (...) {
+        if (stmt != nullptr) {
+            delete stmt;
+        }
+        throw;
     }
 }
 
