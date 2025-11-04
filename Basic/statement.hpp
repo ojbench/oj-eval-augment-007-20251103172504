@@ -85,4 +85,77 @@ public:
  * specify its own destructor method to free that memory.
  */
 
+// REM statement - comment
+class RemStatement : public Statement {
+public:
+    RemStatement();
+    virtual ~RemStatement();
+    virtual void execute(EvalState &state, Program &program);
+};
+
+// LET statement - variable assignment
+class LetStatement : public Statement {
+public:
+    LetStatement(TokenScanner &scanner);
+    virtual ~LetStatement();
+    virtual void execute(EvalState &state, Program &program);
+private:
+    std::string varName;
+    Expression *exp;
+};
+
+// PRINT statement - print expression value
+class PrintStatement : public Statement {
+public:
+    PrintStatement(TokenScanner &scanner);
+    virtual ~PrintStatement();
+    virtual void execute(EvalState &state, Program &program);
+private:
+    Expression *exp;
+};
+
+// INPUT statement - read input to variable
+class InputStatement : public Statement {
+public:
+    InputStatement(TokenScanner &scanner);
+    virtual ~InputStatement();
+    virtual void execute(EvalState &state, Program &program);
+private:
+    std::string varName;
+};
+
+// END statement - terminate program
+class EndStatement : public Statement {
+public:
+    EndStatement();
+    virtual ~EndStatement();
+    virtual void execute(EvalState &state, Program &program);
+};
+
+// GOTO statement - jump to line number
+class GotoStatement : public Statement {
+public:
+    GotoStatement(TokenScanner &scanner);
+    virtual ~GotoStatement();
+    virtual void execute(EvalState &state, Program &program);
+    int getTargetLine() const;
+private:
+    int targetLine;
+};
+
+// IF statement - conditional jump
+class IfStatement : public Statement {
+public:
+    IfStatement(TokenScanner &scanner);
+    virtual ~IfStatement();
+    virtual void execute(EvalState &state, Program &program);
+    int getTargetLine() const;
+    bool evaluateCondition(EvalState &state);
+private:
+    Expression *lhs;
+    Expression *rhs;
+    std::string op;
+    int targetLine;
+};
+
 #endif
